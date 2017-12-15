@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+#WorkerBee hmmer parser
+
+import sys
+import subprocess
+from datetime import datetime
+
+ifl = sys.argv[1]
+fname = sys.argv[2]
+nmlst = []
+aclst = []
+ctlst = []
+dmct = 0
+notEmpty = False
+
+hfile = open(ifl)
+
+for line in hfile:
+    if line[0] != "#":
+        notEmpty = True
+        found = False
+        lf = line.split()
+        for names in nmlst:
+            if lf[0] == names:
+                found = True
+                ctlst[nmlst.index(names)] += 1
+        if found == False:
+            nmlst.append(lf[0])
+            aclst.append(lf[1])
+            ctlst.append(1)
+
+
+if notEmpty == False:
+    print("WARNING: No predicted domains detected! WorkerBee files will not be created.")
+    sys.exit() #kill switch, again
+
+for counts in ctlst:
+    dmct += counts
+
+subprocess.call(["touch", "{0}/summary.wb".format(str(fname))])
+ofile = open("{0}/summary.wb".format(str(fname)), "w")
+vfile = open("{0}/all.wb".format(str(fname)), "w")
+
+list(zip(*sorted(zip(nmlst,ctlst),reverse=True))[1])
+
+ofile.write("\n")
+ofile.write("==============================================================\n")
+ofile.write("  WorkerBee, by Omar Tibi\n")
+ofile.write("  Designed for the ASAL pipeline\n")
+ofile.write("+------------------------------------------------------------+\n")
+ofile.write("  Version: WorkerBee v.0.5 (12/2/2017)\n")
+ofile.write("  Time: {0}\n".format(str(datetime.now())))
+ofile.write("  Current directory: {0}\n".format(str(fname)))
+ofile.write("==============================================================\n")
+ofile.write("                            Summary\n")
+ofile.write("+------------------------------------------------------------+\n")
+ofile.write("  Total number of predicted domains: {0}\n".format(str(dmct)))
+ofile.write("  Number of unique predicted domains: {0}\n".format(str(len(nmlst))))
+ofile.write("+------------------------------------------------------------+\n")
+ofile.write("  Most abundant predicted domains:\n")
+ofile.write("\n")
+
+counter = 1
+if len(nmlst) >=15:
+    while counter < 16:
+        ofile.write("  {0}. {1} - {2} ({3}%)\n".format(str(counter),str(nmlst[counter-1]),str(ctlst[counter-1]),str(round(float(ctlst[counter-1])/dmct, 2)*100)))
+        counter += 1
+else:
+    while counter < (len(nmlst) + 1):
+        ofile.write("  {0}. {1} - {2} ({3}%)\n".format(str(counter),str(nmlst[counter-1]),str(ctlst[counter-1]),str(round(float(ctlst[counter-1])/dmct, 2)*100)))
+        counter += 1
+
+vfile.write("\n")
+vfile.write("==============================================================\n")
+vfile.write("  WorkerBee, by Omar Tibi\n")
+vfile.write("  Designed for the ASAL pipeline\n")
+vfile.write("+------------------------------------------------------------+\n")
+vfile.write("  Version: WorkerBee v.0.5 (12/2/2017)\n")
+vfile.write("  Time: {0}\n".format(str(datetime.now())))
+vfile.write("  Current directory: {0}\n".format(str(fname)))
+vfile.write("==============================================================\n")
+vfile.write("                 Detailed Prediction File\n")
+vfile.write("+------------------------------------------------------------+\n")
+vfile.write("  All predicted domains (most to least abundant):\n")
+vfile.write("\n")
+ct2 = 1
+while ct2 < (len(nmlst) + 1):
+    vfile.write("  {0}. {1} - {2} ({3}%)\n".format(str(ct2),str(nmlst[ct2-1]),str(ctlst[ct2-1]),str(round(float(ctlst[ct2-1])/dmct, 2)*100)))
+    ct2 += 1

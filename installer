@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+#ASAL pipeline installer
+
+import sys
+import subprocess
+from datetime import datetime
+import os
+
+DEVNULL = open(os.devnull, 'w')
+
+print("")
+print("==============================================================")
+print("  ASAL Programs and Dependencies Installer")
+print("  Created by Omar Tibi")
+print("+------------------------------------------------------------+")
+print("  Versions: ASAL v.0.9, MEGAHIT 1.1.2, FragGeneScan 1.3,") 
+print("            HMMer 3.1b2, WorkerBee v.0.5")
+print("  Current Time: {0}".format(str(datetime.now())))
+print("==============================================================\n")
+print("+------------------------------------------------------------+")
+print("  1. Installing MEGAHIT reads assembler.\n")
+print("  Fetching latest version of MEGAHIT...")
+subprocess.call(["git", "clone", "https://github.com/voutcn/megahit.git"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  Making program ready for use...")
+subprocess.call(["make", "-C", "megahit"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  MEGAHIT installation complete!")
+print("+------------------------------------------------------------+")
+print("  2. Installing FragGeneScan gene prediction program.\n")
+print("  Unpacking gzipped tarball...")
+subprocess.call(["tar", "-xzf", "FragGeneScan1.30.tar.gz"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  Making program ready for use...")
+subprocess.call(["make", "clean", "-C", "FragGeneScan1.30"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+subprocess.call(["make", "fgs", "-C", "FragGeneScan1.30"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  FragGeneScan installation complete!")
+print("+------------------------------------------------------------+")
+print("  3. Installing HMMer annotation program.\n")
+print("  Unpacking gzipped tarball...")
+subprocess.call(["tar", "-xf", "hmmer-3.1b2.tar.gz"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  Configuring program...")
+subprocess.call(["(", "cd", "hmmer-3.1b2", "&&", ".configure", ")"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  Making ready for use...")
+subprocess.call(["make", "-C", "hmmer-3.1b2"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print(" HMMer installation complete!")
+print("+------------------------------------------------------------+")
+print("  4. Installing Pfam hmm database.\n")
+print("  Fetching latest Pfam release...") 
+subprocess.call(["wget", "ftp://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print("  Unzipping...")
+subprocess.call(["gunzip", "Pfam-A.hmm.gz"], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print(" Preparing Pfam release for use...")
+subprocess.call(["hmmpress", "Pfam-A.hmm")], stdout=DEVNULL, stderr=subprocess.STDOUT)
+print(" Pfam preparation complete!")
+print("+------------------------------------------------------------+\n")
+print("Installation complete! ASAL pipeline is now ready for use")
+sys.exit() #Third time's a charm

@@ -1,0 +1,56 @@
+==============================================================
+  ASAL -  A Simple, Automated pipeLine
+  Readme
+
+  Overview
++------------------------------------------------------------+
+
+  ASAL is a pipeline for functional analysis of metagenomics data, designed to be as simple
+  and user-friendly as possible. It stands for "A Simple, Automated pipeLine", and also takes its name 
+  from the Arabic word for honey (alternatively, Another Stupid Automated pipeLine). I hope that
+  you, the user, find it to indeed be sweet in its use!
+
+  Installation
++------------------------------------------------------------+
+
+  Assuming that you've already extracted the tarball (how else would you be reading this README?),
+  the next step is to run the "installer" script. All you need to do is type as follows:
+  
+  	./installer
+  
+  Just like that, it will handle all of the installation, making, etc. by itself, so sit back
+  and relax while it runs. Once its done running, the ASAL pipeline will be ready for use.
+
+  Running the Pipeline
++------------------------------------------------------------+
+
+  ASAL can take both paired-end and single-end files, in both FASTA and FASTQ format. 
+  
+  To run single-end data:
+
+  	./asal -s <input file path> -o <output name>
+
+  To run paired-end data:
+
+  	./asal -1 <forward/first file path> -2 <reverse/second file path> -o <output file name>
+
+  Once executed, the pipeline will automatically run until completion, updating you as steps are 
+  completed, and alerting you if any errors occur.
+
+  Output
++------------------------------------------------------------+
+
+  ASAL outputs an individual directory for each run based on the given output file name, located
+  under the "results" directory to keep everything in one place. Three files are output, a HMMer
+  tabular file with the functional annotation results, a "summary.wb" file with a more easily
+  readable file summarizing the results, and an "all.wb" file listing all predicted domains
+  by frequency. Output from read assembly and gene prediction can also be accesed, in their respective
+  sub-directories inside this main directory.
+
+  Arguments Reference
++------------------------------------------------------------+
+
+  -o <name> - Argument for the name of the central output directory, and the results file names.
+  -s <filename> - Input for SINGLE-END files.
+  -1 <filename> - Input for the first/forward PARIED-END file.
+  -2 <filename> - Input for the second/reverse PAIRED-END file.

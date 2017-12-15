@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+#Script to run the ASAL pipeline
+
+from datetime import datetime
+import argparse
+import os
+import time
+import sys
+import subprocess
+
+cores = int(subprocess.check_output(["nproc"]))
+parser = argparse.ArgumentParser("ASAL pipeline main script.")
+parser.add_argument("-s", "--single", help="Argument for single seq file.")
+parser.add_argument("-1", "--one", help="Argument for forward/first paired end seq file.")
+parser.add_argument("-2", "--two", help="Argument for reverse/second paired end seq file.")
+parser.add_argument("-o", "--output", help="Folder and file names for output.")
+args = parser.parse_args()
+
+if args.single:
+    sf = args.single
+else:
+    pe1 = args.one
+    pe2 = args.two
+fname = args.output
+DEVNULL = open(os.devnull, 'w')
+
+step1done = False
+step2done = False
+step3done = False
+
+subprocess.call(["mkdir","results/{0}".format(str(fname))]) #creating master folder for all output
+
+print("")
+print("==============================================================")
+print("  ASAL - A Simple, Automatic PipeLine")
+print("  Created by Omar Tibi (Email: otibi1@jhu.edu)")
+print("+------------------------------------------------------------+")
+print("  Version: ASAL v.0.9 (12/3/2017)")
+print("  Time: {0}".format(str(datetime.now())))
+print("  Specified directory: {0}".format(str(fname)))
+print("==============================================================\n")
+
+#Run MegaHit assembler
+print("STEP 1: ASSEMBLY")
+print("Assembly in progress...")
+
+if args.single:
+    subprocess.call(["./megahit/megahit", "-r", sf, "-o", "results/{0}/{0}_assembled".format(str(fname))], stdout=DEVNULL, stderr=subprocess.STDOUT)
+else:
+     subprocess.call(["./megahit/megahit", "-1", pe1, "-2", pe2, "-o", "results/{0}/{0}_assembled".format(str(fname))], stdout=DEVNULL, stderr=subprocess.STDOUT)
+if os.path.isfile("results/{0}/{0}_assembled/done".format(str(fname))):
+    step1done = True
+    DEVNULL.close()
+    print("Assembly complete!")
+else:
+    print("Warning: error in file creation. Pipeline shutting down.")
+    sys.exit()
+print("+------------------------------------------------------------+\n")
+#Run FragGeneScan for prediction
+DEVNULL = open(os.devnull, 'w')
+if step1done == True:
+    print("STEP 2: PREDICTION")
+    print("Prediction in progress...")
+    subprocess.call(["mkdir", "results/{0}/{0}_predict".format(str(fname))]) #Creating folder for prediction
+    subprocess.call(["./FragGeneScan1.30/run_FragGeneScan.pl", "-genome=results/{0}/{0}_assembled/final.contigs.fa".format(str(fname)), "-out=results/{0}/{0}_predict/{0}".format(str(fname)), "-complete=0", "-train=complete", "-thread={0}".format(str(cores))], stdout=DEVNULL, stderr=subprocess.STDOUT)
+    if os.path.isfile("results/{0}/{0}_predict/{0}.out".format(str(fname))):
+        step2done = True
+        DEVNULL.close()
+        print("Prediction complete!")
+    else:
+        print("Warning: error in file creation. Pipeline shutting down.")
+        sys.exit()
+print("+------------------------------------------------------------+\n")
+#Run HMMer for annotation
+DEVNULL = open(os.devnull, 'w')
+if step1done == True and step2done == True:
+    print("STEP 3: ANNOTATION")
+    print("Annotation in progress...")
+    subprocess.call(["hmmscan", "--tblout", "results/{0}/{0}.final".format(str(fname)), "-E", "1e-3", "--cpu", str(cores), "Pfam-A.hmm", "results/{0}/{0}_predict/{0}.faa".format(str(fname))], stdout=DEVNULL, stderr=subprocess.STDOUT)
+    if os.path.isfile("results/{0}/{0}.final".format(str(fname))):
+        step3done = True
+        print("Annotation complete!")
+    else:
+        print("Warning: error in file creation. Pipeline shutting down.")
+        sys.exit()
+print("+------------------------------------------------------------+\n")
+#Run WorkerBee for summary file
+if step1done == True and step2done == True and step3done == True:
+        print("STEP 4: SUMMARY")
+        print("Summary file creation in progress...")
+        subprocess.call(["./workerbee", "results/{0}/{0}.final".format(str(fname)), fname])
+        if os.path.isfile("results/{0}/summary.wb".format(str(fname))):
+            print("WorkerBee summary complete!")
+print("+------------------------------------------------------------+")
+print("")
+print("All steps completed with no errors. Check results folder for your data.")
+print("==============================================================")
+sys.exit() #kill switch in case of errors
