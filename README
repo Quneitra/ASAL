@@ -1,6 +1,8 @@
 ==============================================================
   ASAL -  A Simple, Automated pipeLine
   Readme
+  
+  Original linkedIn article: 
 
   Overview
 +------------------------------------------------------------+
@@ -13,8 +15,17 @@
   Installation
 +------------------------------------------------------------+
 
-  Assuming that you've already extracted the tarball (how else would you be reading this README?),
-  the next step is to run the "installer" script. All you need to do is type as follows:
+  There are two ways to install ASAL, one being downloading and unzipping the tarball located under
+  "releases", the other is directly copying this source code to your local directory via the git 
+  function. For the first version, all you need to do is unwrap the tarball. For this version, however,
+  you're going to need to download the HMMer and FragGeneScan releases first.
+  
+  To do this, fetch the HMMer (http://hmmer.org/download.html) and FragGeneScan 
+  (http://omics.informatics.indiana.edu/FragGeneScan/) tarballs at their respective websites, and download 
+  them to the directory where this readme is located. *DO NOT UNZIP OR UNTAR THEM*
+  
+  Regardless of which version you used, the next step is to run the "installer" script. All you need to 
+  do is type as follows:
   
   	./installer
   
